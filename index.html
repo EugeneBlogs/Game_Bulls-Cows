@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Oswald:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <title>Быки и коровы</title>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header__title">
+                <a href="index.html" class="burger back_home">
+                    <i class="material-icons">menu</i>
+                </a>
+                <img src="img/logo1.PNG" alt="Логотип" class="logo-synopsis">
+            </div>
+            <h1 class="h1">Eugene Blogs Company</h1>
+            <h4 class="h4">Студия разработки игр, программ и сайтов</h4>
+        </div>
+    </header>
+    <section>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="mt-5 mb-5">🐂Быки и коровы🐄</h2>
+                    <input id="user_in" type="number" class="form-control" placeholder="Число"
+                        onkeypress='validate(event)'>
+                    <br>
+                    <button class="btn btn-success" onclick="Check()">Проверить</button>
+                    <button class="btn btn-danger" onclick="Restart()">Начать сначала</button>
+                    <br>
+                    <br>
+                    <table class="table align-middle text-center">
+                        <thead>
+                            <tr class="table-info">
+                                <th data-type="number">Попытка</th>
+                                <th data-type="number">Ввод</th>
+                                <th data-type="string">Результат</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__flex">
+                <div class="footer__flex-left">
+                    <p class="footer-p" id="copyright">© 2022 Eugene Blogs Company</p>
+                </div>
+                <div class="footer__flex-center">
+                    <p class="footer-p">Все права защищены.</p>
+                </div>
+                <div class="footer__flex-right">
+                    <p class="footer-p">Разработано лучшей студией программирования :)</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        window.onload = function () {
+            document.getElementById("copyright").innerHTML = `© ${new Date().getUTCFullYear()} Eugene Blogs Company`
+        };
+        // Методы генерации 4-значного числа без повторений
+        function random4Digit() {
+            return shuffle("0123456789".split('')).join('').substring(0, 4);
+        }
+        function shuffle(o) {
+            for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+            return o;
+        }
+        // Разрешаем ввод ТОЛЬКО цифр в Input
+        function validate(evt) {
+            var theEvent = evt || window.event;
+            if (theEvent.type === 'paste') {
+                key = event.clipboardData.getData('text/plain');
+            } else {
+                var key = theEvent.keyCode || theEvent.which;
+                key = String.fromCharCode(key);
+            }
+            var regex = /[0-9]|\./;
+            if (!regex.test(key)) {
+                theEvent.returnValue = false;
+                if (theEvent.preventDefault) theEvent.preventDefault();
+            }
+        }
+        // Проверяем строку на повторные символы
+        function Repetitions(str) {
+            for (var i = 0; i <= str.length; i++) {
+                for (var j = i + 1; j <= str.length; j++) {
+                    if (str[j] == str[i]) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        let number_in = document.getElementById("user_in"); // Удобное обращение к Input
+        let answer = "0"; // Загаданное число
+        let attempts = 1; // Попытки
+        // Генерируем число снова, если первый символ = 0
+        while (answer[0] == "0") {
+            answer = random4Digit();
+        }
+
+        // Обработка клавиш на клавиатуре
+        document.addEventListener('keydown', function (e) {
+            if (e.key === "Enter") {
+                Check(); // При нажатии на клавишу 'Enter', запускаем функцию 'Check()'
+            }
+        });
+
+        function Check() {
+            // Проверяем, чтобы в строке было ТОЛЬКО 4 символа
+            if (number_in.value.length == 4) {
+                // Проверяем строку на повторные символы
+                if (!Repetitions(number_in.value)) {
+                    let bulls = 0; // Количество быков
+                    let cows = 0; // Количество коров
+                    // Проверяем каждый символ
+                    for (let i = 0; i < 4; i++) {
+                        if (number_in.value[i] === answer[i]) bulls++; // Если цифра совпадает с цифрой в ответе, добавляем быка
+                        else if (answer.includes(number_in.value[i])) cows++; // Если цифра есть в ответе, добавляем корову
+                    }
+                    // Добавляем попытку в таблицу
+                    document.querySelector('.list').insertAdjacentHTML('beforeend',
+                        `
+                <tr>
+                <td>${attempts}/10</td>
+                <td>${number_in.value}</td>
+                <td>🐂Быки: ${bulls}, 🐄Коровы: ${cows}</td>
+                </tr>
+                `)
+                    // Проверяем, выиграл ли человек
+                    if (bulls == 4) {
+                        alert(`Поздравляем, вы угадали! Компьютер загадал число ${answer}.`)
+                        location.href = document.URL;
+                    } else {
+                        // Если нет - добавляем попытку
+                        attempts++;
+                        // Проверяем, проиграл ли человек
+                        if (attempts > 10) {
+                            alert(`К сожалению, вы проиграли! Компьютер загадал число ${answer}.`)
+                            location.href = document.URL;
+                        }
+                    }
+                } else {
+                    alert("Цифры не должны повторяться!")
+                }
+            } else {
+                alert("Недопустимое количество цифр в числе! Их должно быть 4.")
+            }
+        }
+        function Restart() {
+            location.href = document.URL; // Обновляем страницу
+        }
+    </script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+</body>
+
+</html>
